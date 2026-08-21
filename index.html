@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TracXY — Track Your Ride Across South Africa</title>
+  <meta name="description" content="TracXY connects commuters with nearby minibus taxis and helps drivers Track passengers faster. Built for South Africa's taxi industry." />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <style>
+    /* Extra breathing room between sections on Android / smaller screens */
+    @media (max-width: 768px) {
+      .overlay-section { padding-top: 56px !important; padding-bottom: 56px !important; margin-top: 12px !important; }
+      .how { padding-top: 64px !important; padding-bottom: 56px !important; margin-top: 12px !important; }
+      .download { padding-top: 64px !important; padding-bottom: 64px !important; margin-top: 12px !important; }
+      .footer { margin-top: 24px !important; }
+      .footer__inner { padding-top: 56px !important; padding-bottom: 32px !important; }
+      .how__steps { row-gap: 36px !important; }
+      .feature-row { row-gap: 28px !important; }
+    }
+    /* Language toggle styling */
+    .lang-toggle {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.3px;
+      backdrop-filter: blur(4px);
+      margin-left: 12px;
+    }
+    .lang-toggle:hover {
+      background: rgba(255,255,255,0.18);
+      border-color: rgba(255,255,255,0.4);
+    }
+    @media (max-width: 768px) {
+      .lang-toggle {
+        font-size: 0.7rem;
+        padding: 4px 10px;
+        margin-left: 6px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- MOTION LAYER: custom cursor + grain texture (both ignore clicks) -->
+  <div class="grain" aria-hidden="true"></div>
+  <div class="cursor-dot" aria-hidden="true"></div>
+  <div class="cursor-ring" aria-hidden="true"></div>
+
+  <!-- STAFF LOGIN BANNER -->
+  <div class="staff-banner" id="staffBanner">
+    <div class="staff-banner__inner container">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="staff-banner__icon"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+      <span class="staff-banner__text" data-i18n="staff-banner">Part of the Trac<span class="text-accent">XY</span> team? <a href="login.html" class="staff-banner__link">Sign in to the admin console →</a></span>
+      <button class="staff-banner__close" id="staffBannerClose" aria-label="Dismiss">×</button>
+    </div>
+  </div>
+
+  <!-- NAV -->
+  <header class="nav" id="navbar">
+    <div class="nav__inner container">
+      <a href="#hero" class="nav__logo">
+        <img src="logo.png" alt="TracXY logo" class="nav__logo-img" />
+        <span class="nav__logo-text">Trac<span class="text-accent">XY</span></span>
+      </a>
+      <nav class="nav__links" id="navLinks">
+        <a href="#hero" class="nav__link active" data-i18n="nav-home">Home</a>
+        <a href="#passengers" class="nav__link" data-i18n="nav-passengers">For Passengers</a>
+        <a href="#drivers" class="nav__link" data-i18n="nav-drivers">For Drivers</a>
+        <a href="#how-it-works" class="nav__link" data-i18n="nav-how">How It Works</a>
+        <a href="#download" class="nav__link" data-i18n="nav-download">Download</a>
+        <a href="#contact" class="nav__link" data-i18n="nav-contact">Contact</a>
+      </nav>
+      <a href="#contact" class="btn btn--primary btn--pill nav__cta" data-i18n="nav-cta">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Contact
+      </a>
+      <button class="lang-toggle" id="langToggle" aria-label="Switch language">Zulu</button>
+      <button class="nav__burger" id="burger" aria-label="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero" id="hero">
+    <div class="hero__bg">
+      <div class="hero__carousel" id="heroCarousel" aria-hidden="true"></div>
+      <div class="hero__shine" aria-hidden="true"></div>
+      <div class="hero__overlay"></div>
+    </div>
+
+    <div class="container hero__content">
+      <div class="hero__copy">
+        <h1 class="hero__title" data-i18n="hero-title">Simply Tracxy a Taxi</h1>
+        <p class="hero__sub" data-i18n="hero-sub">See nearby taxis on the map, request rides to events, and split fares with people headed your way—all through Trac<span class="text-accent">XY</span>.</p>
+        <div class="hero__ctas">
+          <a href="https://play.google.com/store/apps/details?id=com.finder.passenger" target="_blank" class="btn btn--primary hero__btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+            <span data-i18n="hero-passenger-btn">I'm a Passenger</span><br /><small data-i18n="hero-passenger-small">Track Your Ride</small>
+          </a>
+          <a href="https://play.google.com/store/apps/details?id=com.Finder.driver" target="_blank" class="btn btn--secondary hero__btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+            <span data-i18n="hero-driver-btn">I'm a Driver</span><br /><small data-i18n="hero-driver-small">Track Passengers</small>
+          </a>
+        </div>
+        <div class="hero__stores">
+          <div class="store-col">
+            <span class="store-label" data-i18n="hero-store-label">Available on</span>
+            <a href="https://play.google.com/store/apps/details?id=com.finder.passenger" target="_blank" class="store-badge">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Get it on Google Play" />
+            </a>
+          </div>
+          <div class="store-col">
+            <span class="store-label" data-i18n="hero-store-label">Available on</span>
+            <a href="https://play.google.com/store/apps/details?id=com.Finder.driver" target="_blank" class="store-badge">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Get it on Google Play" />
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE TICKER -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee__track" id="marqueeTrack">
+      <!-- content built by JS -->
+    </div>
+  </div>
+
+  <!-- FOR PASSENGERS -->
+  <section class="overlay-section overlay-section--passengers" id="passengers">
+    <div class="overlay-section__bg">
+      <img src="featuregraphic2.png" alt="" class="overlay-section__bg-img" />
+      <div class="overlay-section__gradient"></div>
+    </div>
+    <div class="container">
+      <div class="overlay-section__content">
+        <div class="section__eyebrow">
+          <div class="eyebrow-icon eyebrow-icon--blue">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+          </div>
+          <h2 class="section__title" data-i18n="passengers-title">For Passengers</h2>
+        </div>
+        <div class="feature-row">
+          <div class="feature-item">
+            <div class="feature-item__head">
+              <div class="feature-item__icon feature-item__icon--blue">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2" fill="white"/></svg>
+              </div>
+              <h3 class="feature-item__title" data-i18n="pass-feature1-title">See What's Nearby</h3>
+            </div>
+            <p class="feature-item__desc" data-i18n="pass-feature1-desc">Beat the uncertainty, track nearby taxis, Know when it's time to leave.</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-item__head">
+              <div class="feature-item__icon feature-item__icon--blue">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              </div>
+              <h3 class="feature-item__title" data-i18n="pass-feature2-title">Request a taxi to any event.</h3>
+            </div>
+            <p class="feature-item__desc" data-i18n="pass-feature2-desc">Request a taxi to any event, Split the fare, negotiate prices with drivers all within the app</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-item__head">
+              <div class="feature-item__icon feature-item__icon--blue">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </div>
+              <h3 class="feature-item__title" data-i18n="pass-feature3-title">Travel With Convinience</h3>
+            </div>
+            <p class="feature-item__desc" data-i18n="pass-feature3-desc">Stop waiting for taxis. Be chilled. Wait for the notification.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOR DRIVERS -->
+  <section class="overlay-section overlay-section--drivers" id="drivers">
+    <div class="overlay-section__bg">
+      <img src="featuregraphic3.png" alt="" class="overlay-section__bg-img" />
+      <div class="overlay-section__gradient"></div>
+    </div>
+    <div class="container">
+      <div class="overlay-section__content">
+        <div class="section__eyebrow">
+          <div class="eyebrow-icon eyebrow-icon--green">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+          </div>
+          <h2 class="section__title" data-i18n="drivers-title">For Drivers</h2>
+        </div>
+        <div class="feature-row">
+          <div class="feature-item">
+            <div class="feature-item__head">
+              <div class="feature-item__icon feature-item__icon--green">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </div>
+              <h3 class="feature-item__title" data-i18n="drive-feature1-title">Live track Passengers</h3>
+            </div>
+            <p class="feature-item__desc" data-i18n="drive-feature1-desc">Before you start driving, you can see if there are passengers nearby or incoming requests.</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-item__head">
+              <div class="feature-item__icon feature-item__icon--green">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              </div>
+              <h3 class="feature-item__title" data-i18n="drive-feature2-title">A New Source of Income</h3>
+            </div>
+            <p class="feature-item__desc" data-i18n="drive-feature2-desc">Turn events into earnings. With Trac<span class="text-accent">XY</span>, drivers can now make extra money from event trips — a first-of-its-kind feature built for you.</p>
+          </div>
+          <div class="feature-item">
+            <div class="feature-item__head">
+              <div class="feature-item__icon feature-item__icon--green">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+              </div>
+              <h3 class="feature-item__title" data-i18n="drive-feature3-title">Navigate With Ease</h3>
+            </div>
+            <p class="feature-item__desc" data-i18n="drive-feature3-desc">Get clear directions to every pickup and drop-off, so you spend less time figuring out the route.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="section how" id="how-it-works">
+    <div class="how__bg" aria-hidden="true">
+      <img src="featuregraphic4.png" alt="" class="how__bg-img" />
+      <div class="pin-icon pin-icon--how"></div>
+    </div>
+    <div class="container how__content">
+      <h2 class="how__heading" data-i18n="how-title">How Trac<span class="text-accent">XY</span> Gets You Moving</h2>
+      <div class="how__steps">
+        <div class="how__step">
+          <div class="how__step-num how__step-num--blue">1</div>
+          <h3 class="how__step-title" data-i18n="how-step1-title">Open and connect instantly</h3>
+          <p class="how__step-desc" data-i18n="how-step1-desc">Immediately see drivers and passengers around your location in real time.</p>
+        </div>
+        <div class="how__connector" aria-hidden="true"></div>
+        <div class="how__step">
+          <div class="how__step-num how__step-num--green">2</div>
+          <h3 class="how__step-title" data-i18n="how-step2-title">Experience faster and more Convinient ride pickups</h3>
+          <p class="how__step-desc" data-i18n="how-step2-desc">Passengers track incoming drivers in real time, while drivers see how many passengers are ready nearby — resulting in quicker pickups.</p>
+        </div>
+        <div class="how__connector" aria-hidden="true"></div>
+        <div class="how__step">
+          <div class="how__step-num how__step-num--blue">3</div>
+          <h3 class="how__step-title" data-i18n="how-step3-title">OR Book a Taxi</h3>
+          <p class="how__step-desc" data-i18n="how-step3-desc">Book a taxi to events, split the fare with others, and get to your destination cheaper.</p>
+        </div>
+        <div class="how__connector" aria-hidden="true"></div>
+        <div class="how__step">
+          <div class="how__step-num how__step-num--green how__step-num--check">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <h3 class="how__step-title" data-i18n="how-step4-title">Need help anytime?</h3>
+          <p class="how__step-desc" data-i18n="how-step4-desc">Contact support for any issues and get quick assistance whenever you need it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- IN ACTION: PASSENGER + DRIVER VIDEOS -->
+  <section class="section videos" id="in-action">
+    <div class="container videos__content">
+      <h2 class="videos__heading" data-i18n="videos-title">See Trac<span class="text-accent">XY</span> In Action</h2>
+      <p class="videos__subheading" data-i18n="videos-sub">Watch how it works from both sides of the ride.</p>
+
+      <div class="videos__groups">
+        <!-- PASSENGER GROUP -->
+        <div class="videos__group videos__group--passenger">
+          <div class="videos__group-label">
+            <span class="videos__dot videos__dot--blue"></span> <span data-i18n="videos-group-passenger">For Passengers</span>
+          </div>
+          <div class="how__showcase how__showcase--blue">
+            <div class="how__showcase-featured">
+              <iframe
+                id="passengerFeaturedVideo"
+                src="https://www.youtube.com/embed/1OVykmpX0Ac"
+                title="TracXY for passengers"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+                loading="lazy">
+              </iframe>
+            </div>
+            <div class="how__showcase-thumbs" data-target="passengerFeaturedVideo">
+              <button class="how__thumb is-active" data-video="1OVykmpX0Ac" style="background-image:url('https://img.youtube.com/vi/1OVykmpX0Ac/mqdefault.jpg')" aria-label="Play passenger video 1"></button>
+              <button class="how__thumb" data-video="PASSENGER_VIDEO_ID_2" style="background-image:url('https://img.youtube.com/vi/PASSENGER_VIDEO_ID_2/mqdefault.jpg')" aria-label="Play passenger video 2"></button>
+              <button class="how__thumb" data-video="PASSENGER_VIDEO_ID_3" style="background-image:url('https://img.youtube.com/vi/PASSENGER_VIDEO_ID_3/mqdefault.jpg')" aria-label="Play passenger video 3"></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- DRIVER GROUP -->
+        <div class="videos__group videos__group--driver">
+          <div class="videos__group-label">
+            <span class="videos__dot videos__dot--green"></span> <span data-i18n="videos-group-driver">For Drivers</span>
+          </div>
+          <div class="how__showcase how__showcase--green">
+            <div class="how__showcase-featured">
+              <iframe
+                id="driverFeaturedVideo"
+                src="https://www.youtube.com/embed/LpZOJU6Dnlk"
+                title="TracXY for drivers"
+                frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowfullscreen
+                loading="lazy">
+              </iframe>
+            </div>
+            <div class="how__showcase-thumbs" data-target="driverFeaturedVideo">
+              <button class="how__thumb is-active" data-video="LpZOJU6Dnlk" style="background-image:url('https://img.youtube.com/vi/LpZOJU6Dnlk/mqdefault.jpg')" aria-label="Play driver video 1"></button>
+              <button class="how__thumb" data-video="ikfcHGwG8T4" style="background-image:url('https://img.youtube.com/vi/ikfcHGwG8T4/mqdefault.jpg')" aria-label="Play driver video 2"></button>
+              <button class="how__thumb" data-video="DRIVER_VIDEO_ID_3" style="background-image:url('https://img.youtube.com/vi/DRIVER_VIDEO_ID_3/mqdefault.jpg')" aria-label="Play driver video 3"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DOWNLOAD -->
+  <section class="section section--dark download" id="download">
+    <div class="container download__inner">
+      <div class="download__left">
+        <h2 class="download__title" data-i18n="download-title">Get the <span class="text-accent">Apps</span></h2>
+        <p class="download__sub" data-i18n="download-sub">One app for passengers, one for drivers — both built for South Africa's minibus taxi industry.</p>
+      </div>
+      <div class="download__apps">
+        <!-- TracXY Passenger -->
+        <a href="https://play.google.com/store/apps/details?id=com.finder.passenger" target="_blank" class="app-card app-card--link">
+          <div class="app-card__icon app-card__icon--blue">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="white"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+          </div>
+          <div class="app-card__info">
+            <h3 class="app-card__name" data-i18n="download-app-passenger-name">Trac<span class="text-accent">XY</span> Passenger</h3>
+            <p class="app-card__desc" data-i18n="download-app-passenger-desc">Track nearby taxis, request a ride, and follow your trip from start to finish.</p>
+            <span class="store-badge store-badge--sm">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Get it on Google Play" />
+            </span>
+          </div>
+        </a>
+        <!-- TracXY Driver Hub -->
+        <a href="https://play.google.com/store/apps/details?id=com.Finder.driver" target="_blank" class="app-card app-card--link">
+          <div class="app-card__icon app-card__icon--green">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+          <div class="app-card__info">
+            <h3 class="app-card__name" data-i18n="download-app-driver-name">Trac<span class="text-accent">XY</span> Driver Hub</h3>
+            <p class="app-card__desc" data-i18n="download-app-driver-desc">See where passengers need you, navigate with ease, and fill more trips.</p>
+            <span class="store-badge store-badge--sm">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Get it on Google Play" />
+            </span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer" id="contact">
+    <div class="container footer__inner">
+      <div class="footer__brand">
+        <a href="#" class="nav__logo footer__logo">
+          <img src="logo.png" alt="TracXY" class="nav__logo-img" />
+          <span class="nav__logo-text">Trac<span class="text-accent">XY</span></span>
+        </a>
+        <p class="footer__tagline" data-i18n="footer-tagline">Built for the people<br />who keep South Africa moving.</p>
+      </div>
+      <div class="footer__links">
+        <h4 class="footer__col-title" data-i18n="footer-quicklinks">Quick Links</h4>
+        <a href="#passengers" class="footer__link" data-i18n="nav-passengers">For Passengers</a>
+        <a href="#drivers" class="footer__link" data-i18n="nav-drivers">For Drivers</a>
+        <a href="#how-it-works" class="footer__link" data-i18n="nav-how">How It Works</a>
+        <a href="#download" class="footer__link" data-i18n="nav-download">Download</a>
+      </div>
+      <div class="footer__links">
+        <h4 class="footer__col-title" data-i18n="footer-support">Support</h4>
+        <a href="#contact" class="footer__link" data-i18n="footer-contact-link">Contact Us</a>
+        <a href="https://us15.campaign-archive.com/?u=74a0a9535f0d0b398d7f95533&id=4a7bc1aaed" target="_blank" rel="noopener" class="footer__link" data-i18n="footer-privacy">Privacy Policy</a>
+        <a href="https://koketsotestcode-blip.github.io/finder-policy/#toc" target="_blank" rel="noopener" class="footer__link" data-i18n="footer-terms">Terms of Service</a>
+        <a href="https://docs.google.com/forms/d/e/1FAIpQLScbiktMwPJfbzRkwI_XeXQEfo3s8CNMa82K21BORvq7kztYDg/viewform" target="_blank" rel="noopener" class="footer__link" data-i18n="footer-deletion">Request Data Deletion</a>
+      </div>
+      <div class="footer__contact">
+        <h4 class="footer__col-title" data-i18n="footer-contact">Contact</h4>
+        <a href="mailto:Kgapholakoketso@gmail.com" class="footer__link footer__email" data-i18n="footer-email">
+          ✉ Kgapholakoketso@gmail.com
+        </a>
+        <a id="whatsappLink" href="#" class="footer__link footer__whatsapp" style="display:none;" data-i18n="footer-whatsapp">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-right:5px;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+          WhatsApp Us
+        </a>
+        <div class="footer__socials">
+          <a href="mailto:Kgapholakoketso@gmail.com" class="footer__social" aria-label="Email">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </a>
+          <a id="whatsappSocialLink" href="#" class="footer__social footer__social--whatsapp" aria-label="WhatsApp" style="display:none;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.149-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <div class="container footer__bottom-inner">
+        <span data-i18n="footer-copyright">@K2026611753 Trac<span class="text-accent">XY</span> pty ltd. All rights reserved.</span>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script src="hero-carousel.js"></script>
+
+  <!-- LANGUAGE TOGGLE & TRANSLATIONS (English, Zulu, Sepedi) -->
+  <script>
+    (function() {
+      // -------- TRANSLATION DICTIONARY (improved Sepedi) --------
+      const translations = {
+        // Navigation
+        'nav-home': { en: 'Home', zu: 'Ekhaya', st: 'Gae' },
+        'nav-passengers': { en: 'For Passengers', zu: 'Abagibeli', st: 'Bapalami' },
+        'nav-drivers': { en: 'For Drivers', zu: 'Abashayeli', st: 'Bakhanni' },
+        'nav-how': { en: 'How It Works', zu: 'Isebenza Kanjani', st: 'E Šoma Bjang' },
+        'nav-download': { en: 'Download', zu: 'Landa', st: 'Laolla' },
+        'nav-contact': { en: 'Contact', zu: 'Xhumana Nathi', st: 'Ikgokaganye le Rena' },
+        'nav-cta': { en: 'Contact', zu: 'Xhumana Nathi', st: 'Ikgokaganye' },
+
+        // Staff banner
+        'staff-banner': {
+          en: 'Part of the Trac<span class="text-accent">XY</span> team? <a href="login.html" class="staff-banner__link">Sign in to the admin console →</a>',
+          zu: 'Uyilungu lethimba le-Trac<span class="text-accent">XY</span>? <a href="login.html" class="staff-banner__link">Ngena kuphaneli yokuphatha →</a>',
+          st: 'Na o karolo ya sehlopha sa TracXY? <a href="login.html" class="staff-banner__link">Tsena go khonsole ya taolo →</a>'
+        },
+
+        // Hero
+        'hero-title': {
+          en: 'Simply Tracxy a Taxi',
+          zu: 'Thola Itekisi Kalula Nge-TracXY',
+          st: 'Hwetša Tekisi Gabonolo ka TracXY'
+        },
+        'hero-sub': {
+          en: 'See nearby taxis on the map, request rides to events, and split fares with people headed your way—all through Trac<span class="text-accent">XY</span>.',
+          zu: 'Bona amatekisi aseduze ebalazweni, cela itekisi eliya emicimbini, futhi wabelane ngemali yokugibela nabantu abaya endaweni efanayo nawe.',
+          st: 'Bona ditekisi tše di lego kgauswi mmapeng, kgopela leeto go ditiragalo, gomme o abelane ka tefo ya leeto le batho ba yago moo o yago gona.'
+        },
+        'hero-passenger-btn': { en: "I'm a Passenger", zu: 'Ngingumgibeli', st: 'Ke Mopalami' },
+        'hero-passenger-small': { en: 'Track Your Ride', zu: 'Landela Uhambo Lwakho', st: 'Latela Leeto la Gago' },
+        'hero-driver-btn': { en: "I'm a Driver", zu: 'Ngingumshayeli', st: 'Ke Mokhanni' },
+        'hero-driver-small': { en: 'Track Passengers', zu: 'Bona Abagibeli', st: 'Bona Bapalami' },
+        'hero-store-label': { en: 'Available on', zu: 'Iyatholakala ku', st: 'E Hwetšagala go' },
+
+        // Passengers section
+        'passengers-title': { en: 'For Passengers', zu: 'Abagibeli', st: 'Bapalami' },
+        'pass-feature1-title': {
+          en: "See What's Nearby",
+          zu: 'Bona Amatekisi Aseduze',
+          st: 'Bona Ditekisi tša Kgauswi'
+        },
+        'pass-feature1-desc': {
+          en: 'Beat the uncertainty, track nearby taxis, Know when it\'s time to leave.',
+          zu: 'Ungabe usaqagela. Bona amatekisi aseduze futhi wazi ukuthi sekuyisikhathi sokuhamba.',
+          st: 'O se sa no akanya. Bona ditekisi tša kgauswi gomme o tsebe gore ke nako ya go sepela.'
+        },
+        'pass-feature2-title': {
+          en: 'Request a taxi to any event.',
+          zu: 'Cela Itekisi Kunoma Yimuphi Umcimbi',
+          st: 'Kgopela Tekisi go Tiragalo Le ge e le Efe'
+        },
+        'pass-feature2-desc': {
+          en: 'Request a taxi to any event, Split the fare, negotiate prices with drivers all within the app',
+          zu: 'Cela itekisi, wabelane ngemali yokugibela, futhi uxoxisane ngentengo nomshayeli ngaphakathi kohlelo.',
+          st: 'Kgopela tekisi, abelana ka tefo ya leeto, gomme le boledišane ka theko le mokhanni ka gare ga app.'
+        },
+        'pass-feature3-title': {
+          en: 'Travel With Convenience',
+          zu: 'Hamba Kalula',
+          st: 'Sepela Gabonolo'
+        },
+        'pass-feature3-desc': {
+          en: 'Stop waiting for taxis. Be chilled. Wait for the notification.',
+          zu: 'Ungabe usalinda esitobhini isikhathi eside. Linda isaziso bese uphuma ngesikhathi.',
+          st: 'O se sa ema nako e telele o letile tekisi. Leta tsebišo gomme o tšwe ka nako.'
+        },
+
+        // Drivers section
+        'drivers-title': { en: 'For Drivers', zu: 'Abashayeli', st: 'Bakhanni' },
+        'drive-feature1-title': {
+          en: 'Live track Passengers',
+          zu: 'Bona Abagibeli Besikhathi Sangempela',
+          st: 'Bona Bapalami ka Nako ya Nnete'
+        },
+        'drive-feature1-desc': {
+          en: 'Before you start driving, you can see if there are passengers nearby or incoming requests.',
+          zu: 'Ngaphambi kokuhamba ungabona ukuthi kukhona abagibeli eduze noma izicelo ezintsha ezingenile.',
+          st: 'Pele o thoma go sepela, o ka bona ge e ba go na le bapalami ba kgauswi goba dikgopelo tše mpsha.'
+        },
+        'drive-feature2-title': {
+          en: 'A New Source of Income',
+          zu: 'Enye Indlela Yokwenza Imali',
+          st: 'Mokgwa o Mpsha wa go Hwetša Tšhelete'
+        },
+        'drive-feature2-desc': {
+          en: 'Turn events into earnings. With Trac<span class="text-accent">XY</span>, drivers can now make extra money from event trips — a first-of-its-kind feature built for you.',
+          zu: 'Guqula uhambo lwemicimbi lube enye indlela yokwenza imali nge-TracXY.',
+          st: 'Fetola maeto a ditiragalo gore e be tšhelete. Ka TracXY o ka hwetša tšhelete e oketšegilego ka maeto a ditiragalo.'
+        },
+        'drive-feature3-title': {
+          en: 'Navigate With Ease',
+          zu: 'Hamba Ngendlela Elula',
+          st: 'Hwetša Tsela Gabonolo'
+        },
+        'drive-feature3-desc': {
+          en: 'Get clear directions to every pickup and drop-off, so you spend less time figuring out the route.',
+          zu: 'Thola iziqondiso ezicacile ukuze ufike kalula lapho uzolanda khona noma wehlise abagibeli.',
+          st: 'Hwetša ditaelo tše di kwagalago gabotse gore o fihle gabonolo moo o swanetšego go lata goba go theola bapalami.'
+        },
+
+        // How it works
+        'how-title': {
+          en: 'How Trac<span class="text-accent">XY</span> Gets You Moving',
+          zu: 'I-TracXY Isebenza Kanjani',
+          st: 'TracXY e go Thuša Bjang go Sepela'
+        },
+        'how-step1-title': {
+          en: 'Open and connect instantly',
+          zu: 'Vula Uxhumeke Ngokushesha',
+          st: 'Bula gomme o Ikgokaganye ka Pela'
+        },
+        'how-step1-desc': {
+          en: 'Immediately see drivers and passengers around your location in real time.',
+          zu: 'Bona abashayeli nabagibeli abaseduze kwakho ngesikhathi sangempela.',
+          st: 'Bona bakhanni le bapalami ba kgauswi le wena ka nako ya nnete.'
+        },
+        'how-step2-title': {
+          en: 'Experience faster and more Convinient ride pickups',
+          zu: 'Thola Ukulandwa Ngokushesha',
+          st: 'Hwetša go Latwa ka Pela'
+        },
+        'how-step2-desc': {
+          en: 'Passengers track incoming drivers in real time, while drivers see how many passengers are ready nearby — resulting in quicker pickups.',
+          zu: 'Abagibeli babona itekisi lisondela, kanti abashayeli babona ukuthi bangaki abagibeli abalindile.',
+          st: 'Bapalami ba bona tekisi e batamela, gomme bakhanni ba bona gore ke bapalami ba bakae ba ba emetšego.'
+        },
+        'how-step3-title': {
+          en: 'OR Book a Taxi',
+          zu: 'Noma Bhuka Itekisi',
+          st: 'Goba Bhuka Tekisi'
+        },
+        'how-step3-desc': {
+          en: 'Book a taxi to events, split the fare with others, and get to your destination cheaper.',
+          zu: 'Bhuka itekisi lomcimbi, wabelane ngemali yokugibela, futhi wonge imali.',
+          st: 'Bhuka tekisi ya tiragalo, abelana ka tefo ya leeto, gomme o boloke tšhelete.'
+        },
+        'how-step4-title': {
+          en: 'Need help anytime?',
+          zu: 'Udinga Usizo?',
+          st: 'Na o Nyaka Thušo?'
+        },
+        'how-step4-desc': {
+          en: 'Contact support for any issues and get quick assistance whenever you need it.',
+          zu: 'Xhumana nathi noma nini uma udinga usizo.',
+          st: 'Ikgokaganye le rena nako le nako ge o nyaka thušo.'
+        },
+
+        // Videos
+        'videos-title': {
+          en: 'See Trac<span class="text-accent">XY</span> In Action',
+          zu: 'Bona I-TracXY Isebenza',
+          st: 'Bona TracXY e Šoma'
+        },
+        'videos-sub': {
+          en: 'Watch how it works from both sides of the ride.',
+          zu: 'Buka ukuthi isebenza kanjani kubagibeli nakubashayeli.',
+          st: 'Bona gore e šoma bjang go bapalami le go bakhanni.'
+        },
+        'videos-group-passenger': { en: 'For Passengers', zu: 'Abagibeli', st: 'Bapalami' },
+        'videos-group-driver': { en: 'For Drivers', zu: 'Abashayeli', st: 'Bakhanni' },
+
+        // Download
+        'download-title': {
+          en: 'Get the <span class="text-accent">Apps</span>',
+          zu: 'Landa Izinhlelo',
+          st: 'Laolla Di-App'
+        },
+        'download-sub': {
+          en: 'One app for passengers, one for drivers — both built for South Africa\'s minibus taxi industry.',
+          zu: 'Uhlelo olulodwa lwabagibeli nolunye lwabashayeli—zombili zakhelwe imboni yamatekisi aseNingizimu Afrika.',
+          st: 'App e tee ya bapalami le e tee ya bakhanni—ka bobedi di hlametšwe intasteri ya ditekisi tše nnyane ya Afrika Borwa.'
+        },
+        'download-app-passenger-name': {
+          en: 'Trac<span class="text-accent">XY</span> Passenger',
+          zu: 'TracXY Passenger',
+          st: 'TracXY Passenger'
+        },
+        'download-app-passenger-desc': {
+          en: 'Track nearby taxis, request a ride, and follow your trip from start to finish.',
+          zu: 'Bona amatekisi aseduze, cela ukugibela, futhi ulandele uhambo lwakho.',
+          st: 'Bona ditekisi tša kgauswi, kgopela leeto, gomme o latele leeto la gago.'
+        },
+        'download-app-driver-name': {
+          en: 'Trac<span class="text-accent">XY</span> Driver Hub',
+          zu: 'TracXY Driver Hub',
+          st: 'TracXY Driver Hub'
+        },
+        'download-app-driver-desc': {
+          en: 'See where passengers need you, navigate with ease, and fill more trips.',
+          zu: 'Bona lapho abagibeli bekudinga khona futhi ugcwalise uhambo oluningi.',
+          st: 'Bona moo bapalami ba go nyakago gona gomme o hwetše maeto a mantši.'
+        },
+
+        // Footer
+        'footer-tagline': {
+          en: 'Built for the people<br />who keep South Africa moving.',
+          zu: 'Yakhelwe abantu abagcina iNingizimu Afrika ihamba.',
+          st: 'E hlametšwe batho bao ba bolokago Afrika Borwa e sepela.'
+        },
+        'footer-quicklinks': { en: 'Quick Links', zu: 'Izixhumanisi', st: 'Dikgokaganyo tša ka Pela' },
+        'footer-support': { en: 'Support', zu: 'Usizo', st: 'Thušo' },
+        'footer-contact-link': { en: 'Contact Us', zu: 'Xhumana Nathi', st: 'Ikgokaganye le Rena' },
+        'footer-privacy': { en: 'Privacy Policy', zu: 'Inqubomgomo Yobumfihlo', st: 'Pholisi ya Sephiri' },
+        'footer-terms': { en: 'Terms of Service', zu: 'Imigomo Yokusebenzisa', st: 'Melawana ya Tirelo' },
+        'footer-deletion': { en: 'Request Data Deletion', zu: 'Cela Ukususwa Kwedatha', st: 'Kgopela go Phumolwa ga Data' },
+        'footer-contact': { en: 'Contact', zu: 'Xhumana', st: 'Ikgokaganye' },
+        'footer-email': { en: '✉ Kgapholakoketso@gmail.com', zu: '✉ Kgapholakoketso@gmail.com', st: '✉ Kgapholakoketso@gmail.com' },
+        'footer-whatsapp': { en: 'WhatsApp Us', zu: 'Sithumele Ku-WhatsApp', st: 'Re Romele ka WhatsApp' },
+        'footer-copyright': {
+          en: '@K2026611753 Trac<span class="text-accent">XY</span> pty ltd. All rights reserved.',
+          zu: '@K2026611753 TracXY Pty Ltd. Wonke amalungelo agodliwe.',
+          st: '@K2026611753 TracXY Pty Ltd. Ditokelo ka moka di bolokilwe.'
+        },
+
+        // Marquee items (ticker)
+        'marquee-items': {
+          en: ['Live Track Taxis', 'Book To Any Event', 'Split The Fare', 'Track Your Ride'],
+          zu: ['Bona Amatekisi Aseduze', 'Bhuka Itekisi Lomcimbi', 'Wabelana Ngemali Yokugibela', 'Landela Uhambo Lwakho'],
+          st: [
+            'Bona Ditekisi tša Kgauswi',
+            'Bhuka Tekisi ya Tiragalo',
+            'Abelana ka Tefo ya Leeto',
+            'Latela Leeto la Gago'
+          ]
+        }
+      };
+
+      // -------- STATE --------
+      const languages = ['en', 'zu', 'st'];
+      let currentLangIndex = 0; // 0=en, 1=zu, 2=st
+      const toggleBtn = document.getElementById('langToggle');
+
+      // -------- HELPER: update marquee --------
+      function updateMarquee(lang) {
+        const track = document.getElementById('marqueeTrack');
+        if (!track) return;
+        const items = translations['marquee-items'][lang];
+        const dot = '<span class="marquee__dot">●</span>';
+        const repeated = items.map(item => `<span>${item}</span>${dot}`).join('');
+        track.innerHTML = repeated + repeated;
+      }
+
+      // -------- HELPER: update all translatable elements --------
+      function setLanguage(lang) {
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+          const key = el.getAttribute('data-i18n');
+          if (translations[key] && translations[key][lang]) {
+            el.innerHTML = translations[key][lang];
+          }
+        });
+        updateMarquee(lang);
+        // Update button label to show the NEXT language
+        const nextIndex = (languages.indexOf(lang) + 1) % languages.length;
+        const nextLang = languages[nextIndex];
+        const labelMap = { 'en': 'English', 'zu': 'Zulu', 'st': 'Sepedi' };
+        if (toggleBtn) {
+          toggleBtn.textContent = labelMap[nextLang];
+        }
+        currentLangIndex = languages.indexOf(lang);
+      }
+
+      // -------- TOGGLE --------
+      function toggleLanguage() {
+        const nextIndex = (currentLangIndex + 1) % languages.length;
+        const nextLang = languages[nextIndex];
+        setLanguage(nextLang);
+      }
+
+      // -------- INIT --------
+      setLanguage('en'); // start with English
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', toggleLanguage);
+      }
+
+      // (keep existing sync for WhatsApp links)
+      (function syncWhatsappSocial() {
+        const source = document.getElementById('whatsappLink');
+        const target = document.getElementById('whatsappSocialLink');
+        if (!source || !target) return;
+        const sync = () => {
+          target.href = source.href;
+          target.style.display = source.style.display;
+        };
+        sync();
+        new MutationObserver(sync).observe(source, { attributes: true, attributeFilter: ['href', 'style'] });
+      })();
+
+      // Video thumbnail switching
+      document.querySelectorAll('.how__showcase-thumbs').forEach(group => {
+        const targetId = group.dataset.target;
+        const featured = document.getElementById(targetId);
+        group.querySelectorAll('.how__thumb').forEach(btn => {
+          btn.addEventListener('click', () => {
+            group.querySelector('.how__thumb.is-active')?.classList.remove('is-active');
+            btn.classList.add('is-active');
+            featured.src = `https://www.youtube.com/embed/${btn.dataset.video}?autoplay=1`;
+          });
+        });
+      });
+
+    })();
+  </script>
+
+  <!-- ================= MOTION LAYER ================= -->
+  <script>
+    (function () {
+      var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var isTouch = window.matchMedia('(hover: none), (pointer: coarse)').matches;
+
+      /* ---------- custom cursor ---------- */
+      if (!reduceMotion && !isTouch) {
+        var dot = document.querySelector('.cursor-dot');
+        var ring = document.querySelector('.cursor-ring');
+        document.body.classList.add('has-custom-cursor');
+        var mx = 0, my = 0, rx = 0, ry = 0;
+        window.addEventListener('mousemove', function (e) { mx = e.clientX; my = e.clientY; });
+        (function loop() {
+          rx += (mx - rx) * 0.18;
+          ry += (my - ry) * 0.18;
+          if (dot) dot.style.transform = 'translate(' + mx + 'px,' + my + 'px) translate(-50%,-50%)';
+          if (ring) ring.style.transform = 'translate(' + rx + 'px,' + ry + 'px) translate(-50%,-50%)';
+          requestAnimationFrame(loop);
+        })();
+        document.querySelectorAll('a, button, .feature-item, .app-card--link, .how__thumb').forEach(function (el) {
+          el.addEventListener('mouseenter', function () { ring && ring.classList.add('is-active'); });
+          el.addEventListener('mouseleave', function () { ring && ring.classList.remove('is-active'); });
+        });
+      }
+
+      /* ---------- magnetic buttons ---------- */
+      if (!reduceMotion && !isTouch && window.gsap) {
+        document.querySelectorAll('.btn').forEach(function (btn) {
+          btn.addEventListener('mousemove', function (e) {
+            var r = btn.getBoundingClientRect();
+            var x = (e.clientX - r.left - r.width / 2) * 0.3;
+            var y = (e.clientY - r.top - r.height / 2) * 0.3;
+            gsap.to(btn, { x: x, y: y, duration: 0.3, ease: 'power2.out' });
+          });
+          btn.addEventListener('mouseleave', function () {
+            gsap.to(btn, { x: 0, y: 0, duration: 0.5, ease: 'elastic.out(1, 0.4)' });
+          });
+        });
+      }
+
+      /* ---------- GSAP scroll-driven choreography ---------- */
+      if (!window.gsap) return;
+      if (window.ScrollTrigger) gsap.registerPlugin(ScrollTrigger);
+      var ease = 'power3.out';
+
+      if (!reduceMotion) {
+        var titleEl = document.querySelector('.hero__title');
+        if (titleEl) {
+          gsap.fromTo(titleEl, { y: 40, opacity: 0 }, {
+            y: 0, opacity: 1, duration: 0.9, ease: 'power4.out', delay: 0.15
+          });
+        }
+
+        gsap.utils.toArray('.section__title, .how__heading, .videos__heading, .videos__subheading, .download__title, .download__sub')
+          .forEach(function (el) {
+            gsap.fromTo(el, { y: 30, opacity: 0 }, {
+              y: 0, opacity: 1, duration: 0.8, ease: ease,
+              scrollTrigger: { trigger: el, start: 'top 88%' }
+            });
+          });
+
+        gsap.utils.toArray('.eyebrow-icon').forEach(function (el) {
+          gsap.fromTo(el, { scale: 0, rotate: -25 }, {
+            scale: 1, rotate: 0, duration: 0.6, ease: 'back.out(2.2)',
+            scrollTrigger: { trigger: el, start: 'top 88%' }
+          });
+        });
+
+        gsap.utils.toArray('.feature-row').forEach(function (row) {
+          gsap.fromTo(row.querySelectorAll('.feature-item'),
+            { y: 46, opacity: 0 },
+            {
+              y: 0, opacity: 1, duration: 0.7, ease: ease, stagger: 0.13,
+              scrollTrigger: { trigger: row, start: 'top 85%' }
+            }
+          );
+        });
+
+        gsap.utils.toArray('.how__step').forEach(function (step, i) {
+          gsap.fromTo(step, { y: 40, opacity: 0, scale: 0.9 }, {
+            y: 0, opacity: 1, scale: 1, duration: 0.6, ease: 'back.out(1.6)',
+            scrollTrigger: { trigger: step, start: 'top 88%' }
+          });
+        });
+        gsap.utils.toArray('.how__connector').forEach(function (line) {
+          gsap.fromTo(line, { scaleX: 0 }, {
+            scaleX: 1, duration: 0.7, ease: 'power2.out', transformOrigin: 'left center',
+            scrollTrigger: { trigger: line, start: 'top 88%' }
+          });
+        });
+
+        var pGroup = document.querySelector('.videos__group--passenger');
+        var dGroup = document.querySelector('.videos__group--driver');
+        if (pGroup) gsap.fromTo(pGroup, { x: -50, opacity: 0 }, { x: 0, opacity: 1, duration: 0.8, ease: ease, scrollTrigger: { trigger: pGroup, start: 'top 85%' } });
+        if (dGroup) gsap.fromTo(dGroup, { x: 50, opacity: 0 }, { x: 0, opacity: 1, duration: 0.8, ease: ease, scrollTrigger: { trigger: dGroup, start: 'top 85%' } });
+
+        gsap.utils.toArray('.app-card--link').forEach(function (card, i) {
+          gsap.fromTo(card, { y: 40, opacity: 0 }, {
+            y: 0, opacity: 1, duration: 0.7, ease: ease, delay: i * 0.12,
+            scrollTrigger: { trigger: card, start: 'top 88%' }
+          });
+        });
+
+        gsap.fromTo('.footer__inner > *', { y: 26, opacity: 0 }, {
+          y: 0, opacity: 1, duration: 0.7, ease: ease, stagger: 0.08,
+          scrollTrigger: { trigger: '.footer__inner', start: 'top 92%' }
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
