@@ -79,9 +79,9 @@
 
     function resize() {
       var rect = container.getBoundingClientRect();
-      cardH = Math.max(140, Math.min(280, rect.height * 0.68));
+      cardH = Math.max(170, Math.min(280, rect.height * 0.68));
       cardW = cardH * HERO_PHOTO_RATIO;
-      if (cardW > rect.width * 0.5) { cardW = rect.width * 0.5; cardH = cardW / HERO_PHOTO_RATIO; }
+      if (cardW > rect.width * 0.78) { cardW = rect.width * 0.78; cardH = cardW / HERO_PHOTO_RATIO; }
       viewport.style.width = cardW + 'px';
       viewport.style.height = cardH + 'px';
     }
