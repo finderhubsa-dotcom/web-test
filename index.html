@@ -213,14 +213,6 @@
         .nav__lang-toggle {
             display: none !important;
         }
-
-        /* ===== fade transition for images that swap on language change ===== */
-        .lang-fade-img {
-            transition: opacity 0.25s ease;
-        }
-        .lang-fade-img.is-fading {
-            opacity: 0;
-        }
     </style>
 </head>
 <body>
@@ -320,7 +312,7 @@
     <!-- FOR PASSENGERS -->
     <section class="overlay-section overlay-section--passengers" id="passengers">
         <div class="overlay-section__bg">
-            <img src="featuregraphic2.png" alt="" class="overlay-section__bg-img lang-fade-img" id="passengersBgImg" />
+            <img src="featuregraphic2.png" alt="" class="overlay-section__bg-img" />
             <div class="overlay-section__gradient"></div>
         </div>
         <div class="container">
@@ -367,7 +359,7 @@
     <!-- FOR DRIVERS -->
     <section class="overlay-section overlay-section--drivers" id="drivers">
         <div class="overlay-section__bg">
-            <img src="featuregraphic3.png" alt="" class="overlay-section__bg-img lang-fade-img" id="driversBgImg" />
+            <img src="featuregraphic3.png" alt="" class="overlay-section__bg-img" />
             <div class="overlay-section__gradient"></div>
         </div>
         <div class="container">
@@ -414,7 +406,7 @@
     <!-- HOW IT WORKS -->
     <section class="section how" id="how-it-works">
         <div class="how__bg" aria-hidden="true">
-            <img src="featuregraphic4.png" alt="" class="how__bg-img lang-fade-img" id="howBgImg" />
+            <img src="featuregraphic4.png" alt="" class="how__bg-img" />
             <div class="pin-icon pin-icon--how"></div>
         </div>
         <div class="container how__content">
@@ -611,7 +603,7 @@
                 'hero-sub': {
                     en: 'See nearby taxis on the map, request rides to events, and split fares with people headed your way ,all through Trac<span class="text-accent">XY</span>.',
                     zu: 'Bona amatekis aseduze nendawo okuyo, Qasha itekesi ukuya emicibini, Nikhokha ngokuhlanganyela nabantu oyangandawonye nabo, konke lokhu kwenzeka nge-Tracxy',
-                    st: 'Bona ditekisi tše di lego kgauswi mmapeng, kgopela tekisi ya goya medirong, gomme o abelane ka tefo ya leeto le batho ba yago moo o yago gona.'
+                    st: 'Bona ditekisi tže di lego kgauswi mmapeng, kgopela tekisi ya goya medirong, gomme o abelane ka tefo ya leeto le batho ba yago moo o yago gona.'
                 },
                 'hero-passenger-btn': { en: "I'm a Passenger", zu: 'Ngingumgibeli', st: 'Ke Mopalami' },
                 'hero-passenger-small': { en: 'Track Your Ride', zu: 'Bona Uhambo Lwakho', st: 'Latela Leeto la Gago' },
@@ -812,46 +804,20 @@
                 }
             };
 
-            // -------- IMAGE SETS (per language) --------
-            // Placeholder filenames for now — swap in the real per-language
-            // assets whenever they're ready, same keys, same array length.
-            const IMAGE_SETS = {
-                en: {
-                    hero: ['hero-en-1.jpg', 'hero-en-2.jpg', 'hero-en-3.jpg'],
-                    passengers: 'featuregraphic2.png',
-                    drivers: 'featuregraphic3.png',
-                    how: 'featuregraphic4.png'
-                },
-                zu: {
-                    hero: ['hero-zu-1.jpg', 'hero-zu-2.jpg', 'hero-zu-3.jpg'],
-                    passengers: 'featuregraphic2-zu.png',
-                    drivers: 'featuregraphic3-zu.png',
-                    how: 'featuregraphic4-zu.png'
-                },
-                st: {
-                    hero: ['hero-st-1.jpg', 'hero-st-2.jpg', 'hero-st-3.jpg'],
-                    passengers: 'featuregraphic2-st.png',
-                    drivers: 'featuregraphic3-st.png',
-                    how: 'featuregraphic4-st.png'
-                }
-            };
-
-            // -------- VIDEO SETS (per language) --------
-            // Placeholder YouTube IDs for isiZulu/Sepedi — replace with the
-            // real video IDs once they're recorded. English keeps the
-            // existing live videos.
-            const VIDEO_SETS = {
+            // -------- VIDEO ID MAP (per language) --------
+            // TODO: swap the placeholder IDs below for real isiZulu / Sepedi videos once available.
+            const videoData = {
                 en: {
                     passenger: ['1OVykmpX0Ac', 'PASSENGER_VIDEO_ID_2', 'PASSENGER_VIDEO_ID_3'],
                     driver: ['LpZOJU6Dnlk', 'ikfcHGwG8T4', 'DRIVER_VIDEO_ID_3']
                 },
                 zu: {
-                    passenger: ['ZULU_PASSENGER_VIDEO_ID_1', 'ZULU_PASSENGER_VIDEO_ID_2', 'ZULU_PASSENGER_VIDEO_ID_3'],
-                    driver: ['ZULU_DRIVER_VIDEO_ID_1', 'ZULU_DRIVER_VIDEO_ID_2', 'ZULU_DRIVER_VIDEO_ID_3']
+                    passenger: ['ZU_PASSENGER_VIDEO_ID_1', 'ZU_PASSENGER_VIDEO_ID_2', 'ZU_PASSENGER_VIDEO_ID_3'],
+                    driver: ['ZU_DRIVER_VIDEO_ID_1', 'ZU_DRIVER_VIDEO_ID_2', 'ZU_DRIVER_VIDEO_ID_3']
                 },
                 st: {
-                    passenger: ['SEPEDI_PASSENGER_VIDEO_ID_1', 'SEPEDI_PASSENGER_VIDEO_ID_2', 'SEPEDI_PASSENGER_VIDEO_ID_3'],
-                    driver: ['SEPEDI_DRIVER_VIDEO_ID_1', 'SEPEDI_DRIVER_VIDEO_ID_2', 'SEPEDI_DRIVER_VIDEO_ID_3']
+                    passenger: ['ST_PASSENGER_VIDEO_ID_1', 'ST_PASSENGER_VIDEO_ID_2', 'ST_PASSENGER_VIDEO_ID_3'],
+                    driver: ['ST_DRIVER_VIDEO_ID_1', 'ST_DRIVER_VIDEO_ID_2', 'ST_DRIVER_VIDEO_ID_3']
                 }
             };
 
@@ -872,66 +838,30 @@
                 track.innerHTML = repeated + repeated;
             }
 
-            // -------- HELPER: swap an <img>'s src with a quick fade --------
-            function swapImgSrc(img, newSrc) {
-                if (!img || !newSrc || img.getAttribute('src') === newSrc) return;
-                img.classList.add('is-fading');
-                window.setTimeout(() => {
-                    img.src = newSrc;
-                    img.classList.remove('is-fading');
-                }, 200);
-            }
+            // -------- HELPER: swap one video group's thumbs + featured iframe --------
+            function updateVideoGroup(featuredId, videoIds) {
+                const featured = document.getElementById(featuredId);
+                const group = document.querySelector('.how__showcase-thumbs[data-target="' + featuredId + '"]');
+                if (!featured || !group || !videoIds || !videoIds.length) return;
 
-            // -------- HELPER: update the 3 section background images --------
-            function updateBackgroundImages(lang) {
-                const set = IMAGE_SETS[lang];
-                if (!set) return;
-                swapImgSrc(document.getElementById('passengersBgImg'), set.passengers);
-                swapImgSrc(document.getElementById('driversBgImg'), set.drivers);
-                swapImgSrc(document.getElementById('howBgImg'), set.how);
-            }
-
-            // -------- HELPER: update hero carousel images --------
-            function updateHeroImages(lang) {
-                const set = IMAGE_SETS[lang];
-                if (!set) return;
-                const heroImgs = document.querySelectorAll('#heroCarousel img');
-                if (heroImgs.length) {
-                    heroImgs.forEach((img, i) => {
-                        if (set.hero[i]) swapImgSrc(img, set.hero[i]);
-                    });
-                } else {
-                    // hero-carousel.js hasn't built <img> elements yet (or uses a
-                    // different structure) — stash the list so it can be picked
-                    // up by hero-carousel.js if it looks for this global.
-                    window.TRACXY_HERO_IMAGES = set.hero;
-                }
-            }
-
-            // -------- HELPER: update the passenger/driver video groups --------
-            function updateVideoGroup(iframeId, videoIds) {
-                const iframe = document.getElementById(iframeId);
-                const thumbGroup = document.querySelector(`.how__showcase-thumbs[data-target="${iframeId}"]`);
-                if (!iframe || !thumbGroup || !videoIds || !videoIds.length) return;
-
-                // Load the first video for the new language
-                iframe.src = `https://www.youtube.com/embed/${videoIds[0]}`;
-
-                // Rebuild the thumbnail strip for the new language's videos
-                const thumbs = thumbGroup.querySelectorAll('.how__thumb');
+                const thumbs = group.querySelectorAll('.how__thumb');
                 thumbs.forEach((thumb, i) => {
-                    if (!videoIds[i]) return;
-                    thumb.dataset.video = videoIds[i];
-                    thumb.style.backgroundImage = `url('https://img.youtube.com/vi/${videoIds[i]}/mqdefault.jpg')`;
+                    const videoId = videoIds[i];
+                    if (!videoId) return;
+                    thumb.dataset.video = videoId;
+                    thumb.style.backgroundImage = "url('https://img.youtube.com/vi/" + videoId + "/mqdefault.jpg')";
                     thumb.classList.toggle('is-active', i === 0);
                 });
+
+                // Reset the featured player to the first video for the new language
+                featured.src = 'https://www.youtube.com/embed/' + videoIds[0];
             }
 
+            // -------- HELPER: swap all video groups for a given language --------
             function updateVideos(lang) {
-                const set = VIDEO_SETS[lang];
-                if (!set) return;
-                updateVideoGroup('passengerFeaturedVideo', set.passenger);
-                updateVideoGroup('driverFeaturedVideo', set.driver);
+                const data = videoData[lang] || videoData.en;
+                updateVideoGroup('passengerFeaturedVideo', data.passenger);
+                updateVideoGroup('driverFeaturedVideo', data.driver);
             }
 
             // -------- HELPER: update all translatable elements --------
@@ -944,8 +874,6 @@
                     }
                 });
                 updateMarquee(lang);
-                updateBackgroundImages(lang);
-                updateHeroImages(lang);
                 updateVideos(lang);
 
                 // Update tab active states
@@ -988,7 +916,8 @@
                 new MutationObserver(sync).observe(source, { attributes: true, attributeFilter: ['href', 'style'] });
             })();
 
-            // Video thumbnail switching
+            // Video thumbnail switching (reads whichever video IDs are currently on the buttons,
+            // so it automatically respects the language-specific IDs set by updateVideos())
             document.querySelectorAll('.how__showcase-thumbs').forEach(group => {
                 const targetId = group.dataset.target;
                 const featured = document.getElementById(targetId);
