@@ -3,15 +3,39 @@
 
   // 3 cards, each showing one of the feature graphics in full (contain —
   // never cropped). Same dimensions on disk, so one aspect ratio covers all.
-  var HERO_IMAGES = [
-    'featuregraphic1.png',
-    'featuregraphic12.png',
-    'featuregraphic13.png'
-  ];
+  //
+  // Placeholder filenames per language — swap these for the real localized
+  // graphics whenever they're ready. Each set must have 3 entries in the
+  // same order (card 1 / card 2 / card 3) so the carousel positions line up
+  // when the language changes.
+  var HERO_IMAGES_BY_LANG = {
+    en: [
+      'featuregraphic1-en.png',
+      'featuregraphic12-en.png',
+      'featuregraphic13-en.png'
+    ],
+    zu: [
+      'featuregraphic1-zu.png',
+      'featuregraphic12-zu.png',
+      'featuregraphic13-zu.png'
+    ],
+    st: [
+      'featuregraphic1-st.png',
+      'featuregraphic12-st.png',
+      'featuregraphic13-st.png'
+    ]
+  };
+
+  var DEFAULT_LANG = 'en';
+  var HERO_IMAGES = HERO_IMAGES_BY_LANG[DEFAULT_LANG];
 
   var HERO_PHOTO_RATIO = 1600 / 600; // native aspect of the feature graphics
 
   var THICKNESS_LAYERS = [-1.47, -0.73, 0, 0.73, 1.47];
+
+  // Kept so we can update images in place later without rebuilding the DOM.
+  var cardEls = [];
+  var currentLang = DEFAULT_LANG;
 
   function frontFaceHTML(imgUrl) {
     return (
@@ -33,6 +57,7 @@
         layer.style.cssText =
           'background:#808080;border:1px solid #808080;border-radius:16px;transform:translateZ(' + zOffset + 'px);';
       } else if (isFront) {
+        layer.className += ' carousel3d__layer--front';
         layer.style.cssText =
           'background:#0A1628;border:1px solid rgba(255,255,255,0.15);' +
           'border-radius:16px;transform:translateZ(' + zOffset + 'px);backface-visibility:hidden;' +
@@ -50,6 +75,24 @@
     return card;
   }
 
+  // Swap the background image on a card's front face without touching its
+  // current animation position/transform.
+  function setCardImage(card, imgUrl) {
+    var face = card.querySelector('.carousel3d__layer--front .c3d-face');
+    if (face) face.style.backgroundImage = "url('" + imgUrl + "')";
+  }
+
+  // Public hook: call this whenever the site language changes so the
+  // carousel picks up that language's image set. Falls back to English if
+  // the requested language has no image set defined.
+  function setLanguage(lang) {
+    var images = HERO_IMAGES_BY_LANG[lang] || HERO_IMAGES_BY_LANG[DEFAULT_LANG];
+    currentLang = HERO_IMAGES_BY_LANG[lang] ? lang : DEFAULT_LANG;
+    cardEls.forEach(function (card, i) {
+      if (images[i]) setCardImage(card, images[i]);
+    });
+  }
+
   function initCarousel(container) {
     if (!container || container.dataset.c3dInit) return;
     container.dataset.c3dInit = '1';
@@ -65,7 +108,7 @@
     viewport.className = 'carousel3d__viewport';
     stage.appendChild(viewport);
 
-    var cardEls = HERO_IMAGES.map(function (imgUrl) {
+    cardEls = HERO_IMAGES.map(function (imgUrl) {
       var card = buildCard(imgUrl);
       viewport.appendChild(card);
       return card;
@@ -227,4 +270,11 @@
   } else {
     start();
   }
+
+  // Expose a small public API so the language-switcher in index.html can
+  // tell the carousel to swap images.
+  window.TracXYCarousel = {
+    setLanguage: setLanguage,
+    getLanguage: function () { return currentLang; }
+  };
 })();
