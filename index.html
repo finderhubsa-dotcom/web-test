@@ -865,25 +865,31 @@
             }
 
             // -------- HELPER: update all translatable elements --------
-            function setLanguage(lang) {
-                currentLang = lang;
-                document.querySelectorAll('[data-i18n]').forEach(el => {
-                    const key = el.getAttribute('data-i18n');
-                    if (translations[key] && translations[key][lang]) {
-                        el.innerHTML = translations[key][lang];
-                    }
-                });
-                updateMarquee(lang);
-                updateVideos(lang);
+// -------- HELPER: update all translatable elements --------
+function setLanguage(lang) {
+    currentLang = lang;
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[key] && translations[key][lang]) {
+            el.innerHTML = translations[key][lang];
+        }
+    });
+    updateMarquee(lang);
+    updateVideos(lang);
 
-                // Update tab active states
-                tabs.forEach(tab => {
-                    tab.classList.toggle('active', tab.dataset.lang === lang);
-                });
+    // NEW: tell the 3D hero carousel to swap its images for this language
+    if (window.TracXYCarousel && typeof window.TracXYCarousel.setLanguage === 'function') {
+        window.TracXYCarousel.setLanguage(lang);
+    }
 
-                // Store preference
-                try { localStorage.setItem('tracxy-lang', lang); } catch (_) {}
-            }
+    // Update tab active states
+    tabs.forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.lang === lang);
+    });
+
+    // Store preference
+    try { localStorage.setItem('tracxy-lang', lang); } catch (_) {}
+}
 
             // -------- TAB CLICKS --------
             tabs.forEach(tab => {
