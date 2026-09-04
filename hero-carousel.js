@@ -27,7 +27,6 @@
   };
 
   var DEFAULT_LANG = 'en';
-  var HERO_IMAGES = HERO_IMAGES_BY_LANG[DEFAULT_LANG];
 
   var HERO_PHOTO_RATIO = 1600 / 600; // native aspect of the feature graphics
 
@@ -35,6 +34,11 @@
 
   // Kept so we can update images in place later without rebuilding the DOM.
   var cardEls = [];
+
+  // Set as soon as we know the page's language (see setLanguage below), and
+  // read by initCarousel() when it actually builds the cards. This is what
+  // lets a stored/inline language selection apply correctly even if
+  // setLanguage() is called before the carousel has built any DOM yet.
   var currentLang = DEFAULT_LANG;
 
   function frontFaceHTML(imgUrl) {
@@ -85,9 +89,16 @@
   // Public hook: call this whenever the site language changes so the
   // carousel picks up that language's image set. Falls back to English if
   // the requested language has no image set defined.
+  //
+  // NOTE: this can be called before initCarousel() has run (e.g. the page's
+  // inline language-init script runs synchronously, before our
+  // DOMContentLoaded handler fires). In that case cardEls is still empty,
+  // so there's nothing to update yet — but we still record currentLang so
+  // that when initCarousel() DOES run, it builds the cards with the right
+  // language from the start instead of always defaulting to English.
   function setLanguage(lang) {
-    var images = HERO_IMAGES_BY_LANG[lang] || HERO_IMAGES_BY_LANG[DEFAULT_LANG];
     currentLang = HERO_IMAGES_BY_LANG[lang] ? lang : DEFAULT_LANG;
+    var images = HERO_IMAGES_BY_LANG[currentLang];
     cardEls.forEach(function (card, i) {
       if (images[i]) setCardImage(card, images[i]);
     });
@@ -98,7 +109,14 @@
     container.dataset.c3dInit = '1';
 
     var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var cardCount = HERO_IMAGES.length;
+
+    // Resolve the image set from whatever language is current *right now*
+    // (set via setLanguage(), possibly before this function ever ran)
+    // instead of a module-load-time default. This is the fix: previously
+    // this always used the hardcoded English set regardless of the page's
+    // actual language on first load.
+    var images = HERO_IMAGES_BY_LANG[currentLang] || HERO_IMAGES_BY_LANG[DEFAULT_LANG];
+    var cardCount = images.length;
 
     var stage = document.createElement('div');
     stage.className = 'carousel3d';
@@ -108,7 +126,7 @@
     viewport.className = 'carousel3d__viewport';
     stage.appendChild(viewport);
 
-    cardEls = HERO_IMAGES.map(function (imgUrl) {
+    cardEls = images.map(function (imgUrl) {
       var card = buildCard(imgUrl);
       viewport.appendChild(card);
       return card;
