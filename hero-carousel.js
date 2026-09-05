@@ -42,13 +42,8 @@
   var currentLang = DEFAULT_LANG;
 
   function frontFaceHTML(imgUrl) {
-    // background-size is 97% (not 100%) as a safety margin: on some Android
-    // WebView builds, a rounded clip-path under an active 3D rotation can
-    // rasterize the clip mask a pixel or two off on one edge. Shrinking the
-    // image slightly inside its box means any such stray clip lands in
-    // empty padding instead of shaving into the actual artwork.
     return (
-      '<div class="c3d-face" style="background-image:url(&#39;' + imgUrl + '&#39;);background-size:97% 97%;background-repeat:no-repeat;background-position:center;"></div>'
+      '<div class="c3d-face" style="background-image:url(&#39;' + imgUrl + '&#39;);background-size:contain;background-repeat:no-repeat;background-position:center;"></div>'
     );
   }
 
