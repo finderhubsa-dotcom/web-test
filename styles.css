@@ -328,16 +328,7 @@ body.has-staff-banner .nav__links.open { top: calc(64px + var(--banner-height, 0
 .carousel3d__layer {
   position: absolute;
   inset: 0;
-  /* Rounded-corner clipping is done with clip-path instead of
-     overflow:hidden + border-radius. On Android WebView, an
-     overflow:hidden + border-radius clip on an element that sits under
-     an actively-rotating 3D ancestor (this layer's parent .carousel3d__card
-     is rotateY()'d up to ~58deg in the render loop) can get its clip mask
-     rasterized a pixel or two off on one edge, which shows up as the image
-     looking cropped. clip-path is handled by a different, more reliable
-     compositing path under active 3D transforms. */
-  clip-path: inset(0 round 16px);
-  overflow: visible;
+  overflow: hidden;
   pointer-events: none;
 }
 
