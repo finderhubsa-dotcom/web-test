@@ -228,15 +228,29 @@
             text-rendering: optimizeLegibility;
         }
 
-        /* ---- Nav ---- */
-        .nav__links {
-            display: flex;
-            align-items: center;
-            gap: 28px;
-        }
+        /* ---- Nav ----
+           IMPORTANT: never set `display` on .nav__links here. On mobile the
+           burger menu relies on styles.css toggling display between the
+           closed and .open states, and overriding it from this block breaks
+           the burger. Desktop-only spacing is scoped below. */
         .nav__link {
             padding: 6px 2px;
             line-height: 1.4;
+        }
+
+        @media (min-width: 901px) {
+            .nav__links {
+                align-items: center;
+                gap: 28px;
+            }
+        }
+
+        /* When the mobile menu is open, give the stacked links room to breathe
+           without touching how they are shown/hidden. */
+        @media (max-width: 900px) {
+            .nav__links.open .nav__link {
+                padding: 12px 4px;
+            }
         }
 
         /* ---- Hero ---- */
